@@ -40,6 +40,14 @@
             android:screenOrientation="fullSensor">
         </activity>
 
+        <activity
+            android:name=".TweenedActivity"
+            android:icon="@drawable/common_ic_googleplayservices"
+            android:label="Face Tracker"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:screenOrientation="fullSensor">
+        </activity>
+
     </application>
 
 </manifest>
