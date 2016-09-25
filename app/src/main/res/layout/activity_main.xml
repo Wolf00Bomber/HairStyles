@@ -20,4 +20,19 @@
         android:layout_margin="5dp"
         android:text="Show Tween Animation" />
 
+    <Button
+    android:id="@+id/btnFullTweenedWithVideo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/btnTweened"
+    android:layout_margin="5dp"
+    android:text="Full Tween Animation + Video" />
+
+    <Button
+        android:id="@+id/btnSeeker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnFullTweenedWithVideo"
+        android:layout_margin="5dp"
+        android:text="Image Seek" />
 </RelativeLayout>

@@ -25,6 +25,22 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+        findViewById(R.id.btnFullTweenedWithVideo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, AdvancedTweenedAnimation.class);
+                startActivity(i);
+            }
+        });
+        findViewById(R.id.btnSeeker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, IVFrameSeekerActivity.class);
+                startActivity(i);
+            }
+        });
+
+
 
     }
 }

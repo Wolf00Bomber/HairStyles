@@ -133,18 +133,18 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         canvas.drawRect(width/8, height/8, (int)(width * 7f/8f), (int)(height * 7f/8f), mBoxPaint);
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
         long choosenTime = System.currentTimeMillis();
-        if(!tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime)
-        {
-            lastTime = choosenTime;
-            if(!isInSelectedWindow(left, top, right, bottom, canvas))
-            {
-                tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-            }
-            else
-            {
-                tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-            }
-        }
+//        if(!tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime)
+//        {
+//            lastTime = choosenTime;
+//            if(!isInSelectedWindow(left, top, right, bottom, canvas))
+//            {
+//                tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+//            }
+//            else
+//            {
+//                tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+//            }
+//        }
 
     }
 
