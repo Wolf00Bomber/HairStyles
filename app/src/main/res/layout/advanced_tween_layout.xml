@@ -1,39 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+    android:layout_height="match_parent">
 
     <SurfaceView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:id="@+id/surfaceView"
-        ></SurfaceView>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></SurfaceView>
 
     <ImageView
+        android:id="@+id/ivTweened"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:id="@+id/ivTweened"
-        android:src="@drawable/out_0079">
-    </ImageView>
+        android:src="@drawable/out_0079"></ImageView>
 
     <ProgressBar
-        android:layout_gravity="bottom|center"
         android:id="@+id/pBar"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center" />
+
     <ToggleButton
-        android:textSize="22sp"
-        android:padding="10dp"
-        android:layout_gravity="bottom|center"
-        android:visibility="invisible"
         android:id="@+id/toggleRecordingButton"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:padding="10dp"
         android:textOff="Start Recording"
         android:textOn="Stop Recording"
+        android:textSize="22sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/viewVideo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
+        android:layout_gravity="top|right"
+        android:padding="10dp"
+        android:text="View Video"
+        android:textSize="22sp"
+        android:visibility="invisible" />
 
 </FrameLayout>
