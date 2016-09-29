@@ -27,6 +27,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -53,7 +56,7 @@ public class AdvancedTweenedAnimation extends AppCompatActivity implements Surfa
     private ToggleButton mToggleButton;
     private boolean mInitSuccesful;
     private final String VIDEO_PATH_NAME = "/mnt/sdcard/Ditto.mp4";
-
+    private final String DITTO_IMAGE_PATH_NAME = "/mnt/sdcard/Ditto_Profile.jpg";
     private static final int MIN_DURATION = 20;
 
     private AnimationDrawable animation;
@@ -117,6 +120,7 @@ public class AdvancedTweenedAnimation extends AppCompatActivity implements Surfa
                         mMediaRecorder = null;
                     }
                     initRecorder(mHolder.getSurface());
+                    takeSnap();
                 }
             }
         });
@@ -156,6 +160,60 @@ public class AdvancedTweenedAnimation extends AppCompatActivity implements Surfa
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void takeSnap()
+    {
+
+        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+
+            }
+        });
+    }
+
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback(){
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera){
+            File pictureFile = getOutputMediaFile();
+
+            if(pictureFile == null){
+                Log.d("TEST", "Error creating media file, check storage permissions");
+                return;
+            }
+
+            try{
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+            }catch(FileNotFoundException e){
+                Log.d("TEST","File not found: "+e.getMessage());
+            } catch (IOException e){
+                Log.d("TEST","Error accessing file: "+e.getMessage());
+            }
+        }
+    };
+
+    private  File getOutputMediaFile(){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),"HairStyles");
+
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if(!mediaStorageDir.exists()){
+            if(!mediaStorageDir.mkdirs()){
+                return null;
+            }
+        }
+
+        // Create a media file name
+        File mediaFile = new File(mediaStorageDir.getPath()+File.separator+"Ditto_profile.jpg");
+        return mediaFile;
     }
 
     private CustomAnimationDrawable getAnimation() {
