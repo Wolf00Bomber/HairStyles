@@ -26,4 +26,6 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.0'
     compile 'com.android.support:design:24.2.0'
     compile 'com.google.android.gms:play-services-vision:9.4.0+'
+    compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.11'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

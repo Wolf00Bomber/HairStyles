@@ -55,8 +55,14 @@ public class AdvancedTweenedAnimation extends AppCompatActivity implements Surfa
     private SurfaceHolder mHolder;
     private ToggleButton mToggleButton;
     private boolean mInitSuccesful;
-    private final String VIDEO_PATH_NAME = "/mnt/sdcard/Ditto.mp4";
-    private final String DITTO_IMAGE_PATH_NAME = "/mnt/sdcard/Ditto_Profile.jpg";
+
+
+    String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/cameraTest/";
+    String VIDEO_FILE_NAME = "FaceMap.mp4";
+    String IMAGE_FILE_NAME = "FaceMap.jpg";
+
+    private final String VIDEO_PATH_NAME = DIRECTORY + VIDEO_FILE_NAME/*"/mnt/sdcard/Ditto.mp4"*/;
+    private final String DITTO_IMAGE_PATH_NAME = DIRECTORY + IMAGE_FILE_NAME/*"/mnt/sdcard/Ditto_Profile.jpg"*/;
     private static final int MIN_DURATION = 20;
 
     private AnimationDrawable animation;
@@ -275,7 +281,7 @@ public class AdvancedTweenedAnimation extends AppCompatActivity implements Surfa
 
     /* Init the MediaRecorder, the order the methods are called is vital to
  * its correct functioning */
-    private void initRecorder(Surface surface) {
+    public void initRecorder(Surface surface) {
 
         mMediaRecorder = new MediaRecorder();
         mMediaRecorder.reset();

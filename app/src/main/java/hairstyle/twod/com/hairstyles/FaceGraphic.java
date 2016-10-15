@@ -27,7 +27,6 @@ import java.util.Locale;
 import ui.camera.GraphicOverlay;
 
 
-
 /**
  * Graphic instance for rendering face position, orientation, and landmarks within an associated
  * graphic overlay view.
@@ -59,6 +58,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private float mFaceHappiness;
 
     private Context context;
+    public boolean shouldDrawFaceBox = true;
 
     FaceGraphic(GraphicOverlay overlay, Context context) {
         super(overlay);
@@ -99,18 +99,12 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     @Override
     public void draw(Canvas canvas) {
         Face face = mFace;
-        if (face == null) {
+        if (face == null)
             return;
-        }
 
         // Draws a circle at the position of the detected face, with the face's track id below.
         float x = translateX(face.getPosition().x + face.getWidth() / 2);
         float y = translateY(face.getPosition().y + face.getHeight() / 2);
-//        canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
-//        canvas.drawText("id: " + mFaceId, x + ID_X_OFFSET, y + ID_Y_OFFSET, mIdPaint);
-//        canvas.drawText("happiness: " + String.format("%.2f", face.getIsSmilingProbability()), x - ID_X_OFFSET, y - ID_Y_OFFSET, mIdPaint);
-//        canvas.drawText("right eye: " + String.format("%.2f", face.getIsRightEyeOpenProbability()), x + ID_X_OFFSET * 2, y + ID_Y_OFFSET * 2, mIdPaint);
-//        canvas.drawText("left eye: " + String.format("%.2f", face.getIsLeftEyeOpenProbability()), x - ID_X_OFFSET*2, y - ID_Y_OFFSET*2, mIdPaint);
 
         // Draws a bounding box around the face.
         float xOffset = scaleX(face.getWidth() / 2.0f);
@@ -122,36 +116,47 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        canvas.drawRect(width/8, height/8, (int)(width * 7f/8f), (int)(height * 7f/8f), mBoxPaint);
+        canvas.drawRect(width / 8, height / 8, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
         long choosenTime = System.currentTimeMillis();
-//        if(!App.tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime)
-//        {
-//            lastTime = choosenTime;
-//            if(!isInSelectedWindow(left, top, right, bottom, canvas))
-//            {
-//                App.tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-//            }
-//            else
-//            {
-//                App.tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-//            }
-//        }
+        if (!App.tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime) {
+            lastTime = choosenTime;
+            if (!isInSelectedWindow(left, top, right, bottom, canvas)) {
+                App.tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+            } else {
+                App.tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+                shouldDrawFaceBox = false;
+//                ((FaceTrackerActivity)context).startRecording();
+            }
+        }
 
     }
 
     long lastTime = 0l;
 
+    private boolean isInSelectedWindow(float left, float top, float right, float bottom, Canvas canvas) {
+        boolean isInWindow;
+//        int threshold = (canvas.getWidth()/16 + canvas.getHeight()/16)/2;
+//        boolean isLeftOk = Math.abs((int)left - canvas.getWidth()/8) < threshold ;
+//        boolean isRightOk = Math.abs((int)right - canvas.getWidth()*7f/8f) < threshold ;
+//        boolean isTopOk = Math.abs((int)top - canvas.getHeight()/8) < threshold ;
+//        boolean isBottomOk = Math.abs((int)bottom - canvas.getHeight()*7f/8f) < threshold ;
+//        isInWindow = isBottomOk && isLeftOk && isRightOk && isTopOk;
 
-    private boolean isInSelectedWindow(float left, float top, float right, float bottom, Canvas canvas)
-    {
-        boolean isInWindow = false;
-        int threshold = (canvas.getWidth()/16 + canvas.getHeight()/16)/2;
-        boolean isLeftOk = Math.abs((int)left - canvas.getWidth()/8) < threshold ;
-        boolean isRightOk = Math.abs((int)right - canvas.getWidth()*7f/8f) < threshold ;
-        boolean isTopOk = Math.abs((int)top - canvas.getHeight()/8) < threshold ;
-        boolean isBottomOk = Math.abs((int)bottom - canvas.getHeight()*7f/8f) < threshold ;
+        // width/8, height/8, (int)(width * 7f/8f), (int)(height * 7f/8f
+        // L > 0 && L < width/8
+        // R > 7f/8f * width && R < width
+        // T > 0 && T < height/8
+        // B > 7f*8f * height && B < height
+
+        int wThreshold = canvas.getWidth() / 8;
+        int hThreshold = canvas.getHeight() / 8;
+        boolean isLeftOk = left > 0 && left < wThreshold;
+        boolean isRightOk = right > wThreshold * 7 && right < wThreshold * 8;
+        boolean isTopOk = top > 0 && top < hThreshold;
+        boolean isBottomOk = bottom > 7 * hThreshold && bottom < 8 * hThreshold;
         isInWindow = isBottomOk && isLeftOk && isRightOk && isTopOk;
+
         return isInWindow;
     }
 }
