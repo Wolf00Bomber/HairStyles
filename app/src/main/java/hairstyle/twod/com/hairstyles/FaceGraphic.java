@@ -39,13 +39,13 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private static final float BOX_STROKE_WIDTH = 5.0f;
 
     private static final int COLOR_CHOICES[] = {
-        Color.BLUE,
-        Color.CYAN,
-        Color.GREEN,
-        Color.MAGENTA,
-        Color.RED,
-        Color.WHITE,
-        Color.YELLOW
+            Color.BLUE,
+            Color.CYAN,
+            Color.GREEN,
+            Color.MAGENTA,
+            Color.RED,
+            Color.WHITE,
+            Color.YELLOW
     };
     private static int mCurrentColorIndex = 0;
 
@@ -57,12 +57,12 @@ class FaceGraphic extends GraphicOverlay.Graphic {
     private int mFaceId;
     private float mFaceHappiness;
 
-    private Context context;
+    private Context mContext;
     public boolean shouldDrawFaceBox = true;
 
     FaceGraphic(GraphicOverlay overlay, Context context) {
         super(overlay);
-
+        mContext = context;
         mCurrentColorIndex = (mCurrentColorIndex + 1) % COLOR_CHOICES.length;
         final int selectedColor = COLOR_CHOICES[mCurrentColorIndex];
 
@@ -116,20 +116,24 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        canvas.drawRect(width / 8, height / 8, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
-        canvas.drawRect(left, top, right, bottom, mBoxPaint);
-        long choosenTime = System.currentTimeMillis();
-        if (!App.tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime) {
-            lastTime = choosenTime;
-            if (!isInSelectedWindow(left, top, right, bottom, canvas)) {
-                App.tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-            } else {
-                App.tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
-                shouldDrawFaceBox = false;
-//                ((FaceTrackerActivity)context).startRecording();
+        if (shouldDrawFaceBox) {
+//            canvas.drawRect(width / 8, height / 8, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
+            canvas.drawRect(left, top, right, bottom, mBoxPaint);
+            canvas.drawRect(width / 8, 0, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
+            long choosenTime = System.currentTimeMillis();
+            if (!App.tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime) {
+                lastTime = choosenTime;
+                if (!isInSelectedWindow(left, top, right, bottom, canvas)) {
+                    App.tSpeech.speak("Please align your Face in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+                } else {
+                    App.tSpeech.speak("Good, You are in the Center Box.", TextToSpeech.QUEUE_FLUSH, null);
+                    shouldDrawFaceBox = false;
+                    if (mContext instanceof DemoActivity) {
+                        ((DemoActivity) mContext).switchToVideoRecording();
+                    }
+                }
             }
         }
-
     }
 
     long lastTime = 0l;
