@@ -15,9 +15,9 @@ import java.util.List;
 /**
  * Created by srikrishna on 15-10-2016.
  */
-public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
+public class VideoRecordView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private static final String TAG = CameraView.class.getSimpleName();
+    private static final String TAG = VideoRecordView.class.getSimpleName();
     private SurfaceHolder mHolder;
     private Camera mCamera;
     private List<Camera.Size> mSupportedPreviewSizes;
@@ -34,7 +34,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int MIN_DURATION = 20;
 
 
-    public CameraView(Context context, Camera camera) {
+    public VideoRecordView(Context context, Camera camera) {
         super(context);
         mCamera = camera;
         mContext = context;

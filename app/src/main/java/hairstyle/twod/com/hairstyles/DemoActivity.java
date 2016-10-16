@@ -13,7 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ToggleButton;
 
 import ui.camera.CameraUtils;
-import ui.camera.CameraView;
+import ui.camera.VideoRecordView;
 
 /**
  * Created by Sri Krishna on 04-10-2016.\
@@ -29,7 +29,7 @@ public class DemoActivity extends AppCompatActivity {
 
 
     private Camera mCamera;
-    private CameraView mSurfaceView;
+    private VideoRecordView mSurfaceView;
     private View mToggleButton;
 
     private static final int MY_PERMISSIONS_REQUEST = 24;
@@ -75,7 +75,7 @@ public class DemoActivity extends AppCompatActivity {
         int rotation = getWindowManager().getDefaultDisplay().getRotation();
         CameraUtils.setCameraDisplayOrientation(mCamera, rotation);
         CameraUtils.setCameraParameters(mCamera);
-        mSurfaceView = new CameraView(this, mCamera);
+        mSurfaceView = new VideoRecordView(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mSurfaceView);
     }
