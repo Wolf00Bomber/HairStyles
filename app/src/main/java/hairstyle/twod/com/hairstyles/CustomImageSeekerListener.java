@@ -14,7 +14,7 @@ public class CustomImageSeekerListener implements View.OnTouchListener {
     }
 
     float tempX;
-    private static final int SWIPE_MIN_DISTANCE = 10;
+    private static final int SWIPE_MIN_DISTANCE = 15;
     ImageSeekerInterface listener;
 
     @Override

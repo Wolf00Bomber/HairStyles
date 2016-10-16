@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,7 +25,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private MediaRecorder mMediaRecorder;
     private Context mContext;
 
-    private final String VIDEO_PATH_NAME = "/mnt/sdcard/VGA_30fps_512vbrate.mp4";
+    String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/cameraTest/";
+    String VIDEO_FILE_NAME = "FaceMap.mp4";
+    String IMAGE_FILE_NAME = "FaceMap.jpg";
+
+    private final String VIDEO_PATH_NAME = DIRECTORY + VIDEO_FILE_NAME/*"/mnt/sdcard/Ditto.mp4"*/;
+    private final String DITTO_IMAGE_PATH_NAME = DIRECTORY + IMAGE_FILE_NAME/*"/mnt/sdcard/Ditto_Profile.jpg"*/;
+    private static final int MIN_DURATION = 20;
+
 
     public CameraView(Context context, Camera camera) {
         super(context);
@@ -40,6 +48,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
+    @Override
     public void surfaceCreated(SurfaceHolder holder) {
         // The Surface has been created, now tell the camera where to draw the preview.
         try {
@@ -50,10 +59,13 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         // empty. Take care of releasing the Camera preview in your activity.
+        releaseMediaRecorder();
     }
 
+    @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
@@ -72,11 +84,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
-//        if (mPreviewSize != null) {
-//            Camera.Parameters parameters = mCamera.getParameters();
-//            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
-//            mCamera.setParameters(parameters);
-//        }
+        if (mPreviewSize != null) {
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            mCamera.setParameters(parameters);
+        }
         // start preview with new settings
         try {
             mCamera.setPreviewDisplay(mHolder);
@@ -104,13 +116,20 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         // or it will results in a black preview
         if (mCamera == null) {
             mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+            CameraUtils.setCameraDisplayOrientation(mCamera, ((Activity) mContext).getWindowManager().getDefaultDisplay().getRotation());
+            CameraUtils.setCameraParameters(mCamera);
         }
-        CameraUtils.setCameraDisplayOrientation(mCamera, ((Activity) mContext).getWindowManager().getDefaultDisplay().getRotation());
+
         mCamera.unlock();
 
-        if (mMediaRecorder == null) mMediaRecorder = new MediaRecorder();
+        if (mMediaRecorder == null)
+            mMediaRecorder = new MediaRecorder();
+
+        mMediaRecorder.reset();
+
         mMediaRecorder.setPreviewDisplay(getHolder().getSurface());
         mMediaRecorder.setOrientationHint(270);
+
         mMediaRecorder.setCamera(mCamera);
 
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
@@ -118,27 +137,46 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setVideoEncodingBitRate(512 * 1000);
         mMediaRecorder.setVideoFrameRate(30);
-        mMediaRecorder.setVideoSize(480, 640);
+        mMediaRecorder.setVideoSize(640, 480);
         mMediaRecorder.setOutputFile(VIDEO_PATH_NAME);
 
         try {
             mMediaRecorder.prepare();
         } catch (IllegalStateException e) {
-            // This is thrown if the previous calls are not called with the
-            // proper order
+            releaseMediaRecorder();
             e.printStackTrace();
         } catch (IOException e) {
+            releaseMediaRecorder();
             e.printStackTrace();
         }
     }
 
+    public void releaseMediaRecorder() {
+        if (mMediaRecorder != null) {
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+        }
+    }
+
     public void startRecording() {
-        initRecorder();
-        mMediaRecorder.start();
+        try {
+            initRecorder();
+            mMediaRecorder.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void stopRecording() {
-        mMediaRecorder.stop();
-        mMediaRecorder.reset();
+        try {
+            mMediaRecorder.stop();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 }
