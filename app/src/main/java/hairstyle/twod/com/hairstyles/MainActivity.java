@@ -45,6 +45,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+        findViewById(R.id.btnLaunchDemo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, DemoActivity.class);
+                startActivity(i);
+            }
+        });
+
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,

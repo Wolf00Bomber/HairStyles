@@ -32,4 +32,5 @@
         android:textOff="Start Recording"
         android:textOn="Stop Recording"
         android:visibility="gone" />
+
 </FrameLayout>

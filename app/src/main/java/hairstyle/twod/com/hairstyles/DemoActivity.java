@@ -3,9 +3,14 @@ package hairstyle.twod.com.hairstyles;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.AnimationDrawable;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -29,6 +35,7 @@ import java.io.IOException;
 import ui.camera.CameraSourcePreview;
 import ui.camera.CameraUtils;
 import ui.camera.GraphicOverlay;
+import ui.camera.TweenedAnimationUtils;
 import ui.camera.VideoRecordView;
 
 /**
@@ -61,6 +68,10 @@ public class DemoActivity extends AppCompatActivity {
     private VideoRecordView mSurfaceView;
     private View mToggleButton;
 
+    // Tweened Animation
+    private AnimationDrawable animation;
+    private Handler h;
+
     private static final int MY_PERMISSIONS_REQUEST = 24;
     String[] permissions = new String[]{Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CAMERA,
@@ -78,6 +89,7 @@ public class DemoActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_recorder_recipe);
+        h = new Handler(Looper.getMainLooper());
         if (arePermissionGranted(permissions)) {
             initFirstCameraForFaceRecognition();
         } else {
@@ -90,13 +102,23 @@ public class DemoActivity extends AppCompatActivity {
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
         createCameraSource();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                animation = TweenedAnimationUtils.getAnimation(DemoActivity.this, new CustomAnimationDrawable.IAnimationFinishListener() {
+                    @Override
+                    public void onAnimationFinished() {
+                        // Stop Media Recorder. Future Release.
+                        mSurfaceView.stopRecording();
+                        Intent i = new Intent(DemoActivity.this, VideoSplicerActivity.class);
+                        startActivity(i);
+                    }
+                });
+            }
+        }).start();
     }
 
     public void switchToVideoRecording() {
-//        mPreview.stop();
-//        mPreview.release();
-//        mPreview.releaseSurface();
-//        mPreview.setVisibility(View.GONE);
         initSecondCameraForVideoRecording();
     }
 
@@ -107,9 +129,11 @@ public class DemoActivity extends AppCompatActivity {
         CameraUtils.setCameraDisplayOrientation(mCamera, rotation);
         CameraUtils.setCameraParameters(mCamera);
         mSurfaceView = new VideoRecordView(this, mCamera);
+        final ImageView ivAnim = getIVAnim();
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.removeAllViews();
         preview.addView(mSurfaceView);
+        preview.addView(ivAnim);
         mToggleButton = findViewById(R.id.toggleRecordingButton);
         mToggleButton.setVisibility(View.VISIBLE);
         mToggleButton.setOnClickListener(new OnClickListener() {
@@ -118,12 +142,26 @@ public class DemoActivity extends AppCompatActivity {
                 if (mSurfaceView == null)
                     return;
                 if (((ToggleButton) v).isChecked()) {
-                    mSurfaceView.startRecording();
+                    App.tSpeech.speak("Please be ready to move with the Face Track.", TextToSpeech.QUEUE_FLUSH, null);
+                    h.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSurfaceView.startRecording();
+                            animation.start();
+                        }
+                    }, 2000);
                 } else {
                     mSurfaceView.stopRecording();
                 }
             }
         });
+    }
+
+    private ImageView getIVAnim() {
+        ImageView ivAnim = new ImageView(this);
+        ivAnim.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        ivAnim.setImageDrawable(animation);
+        return ivAnim;
     }
 
     @Override

@@ -1,8 +1,20 @@
 <resources>
     <string name="app_name">Hair Styles</string>
-<string name="ok">OK</string>
-<string name="permission_camera_rationale">Access to the camera is needed for detection</string>
-<string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
-<string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
+    <string name="ok">OK</string>
+    <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
+    <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
+    <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
+
+    <string name="demo_description">
+        Created by Team on 16-10-2016.\n
+ 1. Fix the Face onto the Grid.\n
+ 2. Start Video Recording + Tweened animation.\n
+ 3. Take a Snap.\n
+ 4. Splice the Video into many Pieces.\n
+ 5. Select a Wig Dialog.\n
+ 5. Apply the Wig to the Image Set.\n
+ 6. Run the Images in a IV Seeker Stage Up.\n
+    </string>
+
 </resources>
 

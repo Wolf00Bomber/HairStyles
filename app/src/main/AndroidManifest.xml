@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".DemoActivity"
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
 
 
         <activity
-            android:name=".MainActivity"
+            android:name=".DemoActivity"
             android:icon="@drawable/common_ic_googleplayservices"
             android:label="Face Tracker"
             android:screenOrientation="portrait"
