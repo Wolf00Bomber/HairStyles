@@ -110,8 +110,15 @@ public class DemoActivity extends AppCompatActivity {
                     public void onAnimationFinished() {
                         // Stop Media Recorder. Future Release.
                         mSurfaceView.stopRecording();
-                        Intent i = new Intent(DemoActivity.this, VideoSplicerActivity.class);
-                        startActivity(i);
+                        App.tSpeech.speak("Great, You will now be navigated to Wig Selection.", TextToSpeech.QUEUE_FLUSH, null);
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent i = new Intent(DemoActivity.this, VideoSplicerActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }, 400);
                     }
                 });
             }

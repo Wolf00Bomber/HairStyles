@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -162,7 +161,7 @@ public class VideoSplicerActivity extends AppCompatActivity implements ImageSeek
     public boolean processVideoSplit(boolean processVideo) {
         File videoFile = new File(DIRECTORY, VIDEO_FILE_NAME);
         Uri videoFileUri = Uri.parse(videoFile.toString());
-        if (!videoFile.exists())
+        if (!videoFile.exists() || videoFile.length() == 0)
             return false;
         MediaPlayer mp = MediaPlayer.create(getBaseContext(), videoFileUri);
         duration = mp.getDuration();
@@ -171,7 +170,7 @@ public class VideoSplicerActivity extends AppCompatActivity implements ImageSeek
             retriever.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
             retriever.setDataSource(videoFile.getAbsolutePath());
             for (long i = 0; i < duration; i += 200) {
-                Bitmap bitmap = retriever.getFrameAtTime(i * 1000, MediaMetadataRetriever.OPTION_CLOSEST);
+                Bitmap bitmap = retriever.getFrameAtTime(i * 1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST);
                 try {
                     if (bitmap != null)
                         saveFrame(bitmap, saveFolder, i);
@@ -229,7 +228,7 @@ public class VideoSplicerActivity extends AppCompatActivity implements ImageSeek
             tempValue = minValueCur;
         }
         Log.i("tempValue", "" + tempValue);
-        if (hashMap.containsKey(tempValue)) {
+        if (hashMap.containsKey(tempValue) && hashMap.get(tempValue) != null && !hashMap.get(tempValue).isRecycled()) {
             b = hashMap.get(tempValue);
         } else {
             try {

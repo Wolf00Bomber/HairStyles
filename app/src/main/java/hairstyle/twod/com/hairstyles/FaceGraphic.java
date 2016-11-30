@@ -22,8 +22,6 @@ import android.speech.tts.TextToSpeech;
 
 import com.google.android.gms.vision.face.Face;
 
-import java.util.Locale;
-
 import ui.camera.GraphicOverlay;
 
 
@@ -119,7 +117,7 @@ class FaceGraphic extends GraphicOverlay.Graphic {
         if (shouldDrawFaceBox) {
 //            canvas.drawRect(width / 8, height / 8, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
             canvas.drawRect(left, top, right, bottom, mBoxPaint);
-            canvas.drawRect(width / 8, 0, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
+            canvas.drawRect(width / 8, height / 8f, (int) (width * 7f / 8f), (int) (height * 7f / 8f), mBoxPaint);
             long choosenTime = System.currentTimeMillis();
             if (!App.tSpeech.isSpeaking() && lastTime + 5 * 1000 < choosenTime) {
                 lastTime = choosenTime;

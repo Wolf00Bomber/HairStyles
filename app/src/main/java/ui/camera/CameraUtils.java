@@ -13,7 +13,7 @@ public class CameraUtils {
 
     private static int mWidth = 480;
     private static int mHeight = 640;
-    private static int mFps = 30;
+    private static int mFps = 45;
 
     public static void setCameraDisplayOrientation(Camera camera, int rotation) {
         if (camera == null)

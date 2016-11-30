@@ -3,8 +3,8 @@ package hairstyle.twod.com.hairstyles;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -110,8 +110,10 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
         return duration > 1l;
     }
 
-    Bitmap wigBitmap;
+    Bitmap wigBitmap, wigRight, wigLeft;
     Paint p;
+    Rect srcLeft, dstLeft, srcRight, dstRight;
+    int w, h;
 
     public void saveFrame(Bitmap mBitmap, long i) throws Exception {
 
@@ -119,16 +121,27 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
             wigBitmap = BitmapFactory.decodeResource(getResources(), wigResSelected);
             wigBitmap = Bitmap.createScaledBitmap(wigBitmap,
                     (int) (mBitmap.getWidth() * 3f / 4f), (int) (mBitmap.getWidth() * 3f / 4f), false);
+            w = wigBitmap.getWidth();
+            h = wigBitmap.getHeight();
+
+            wigLeft = Bitmap.createBitmap(wigBitmap, 0, 0, w / 2, h);
+            wigRight = Bitmap.createBitmap(wigBitmap, w / 2, 0, w / 2, h);
+            if (srcLeft == null)
+                srcLeft = new Rect(0, 0, w / 2, h);
+            if (srcRight == null)
+                srcRight = new Rect(w / 2, 0, w / 2, h);
+
         }
         if (p == null) {
             p = new Paint();
         }
-        Matrix matrix = new Matrix();
-        setScale(matrix, i);
-        Bitmap wigBitmapRotated = Bitmap.createBitmap(wigBitmap, 0, 0, wigBitmap.getWidth(), wigBitmap.getHeight(), matrix, true);
+
+
+        setupDestRect(i, mBitmap);
 
         Canvas canvas = new Canvas(mBitmap);
-        canvas.drawBitmap(wigBitmapRotated, (int) (mBitmap.getWidth() * 1f / 8f), (int) (mBitmap.getWidth() * 1f / 8f), p);
+        canvas.drawBitmap(wigLeft, null, dstLeft, p);
+        canvas.drawBitmap(wigRight, null, dstRight, p);
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         mBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bytes);
@@ -138,32 +151,59 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
         fo.write(bytes.toByteArray());
         fo.flush();
         fo.close();
-        Log.i(TAG, "Wig Frame " + i + " Generated");
-        if (wigBitmapRotated != null) {
-            wigBitmapRotated.recycle();
-            wigBitmapRotated = null;
-        }
+//        Log.i(TAG, "Wig Frame " + i + " Generated");
     }
 
-    private void setScale(Matrix matrix, long pos) {
-        int steps = duration / 4 + 1;
-        int quarter = steps / 4;
-        double scaleX = 1f;
-        if (pos >= 0 && pos <= quarter) {
-            scaleX = Math.cos(10 * pos);
-        } else if (pos > quarter && pos <= quarter * 2) {
-            scaleX = Math.cos(10 * (quarter - (pos - quarter)));
-        } else if (pos > quarter * 2 && pos <= quarter * 3) {
-            scaleX = Math.cos(-10 * (pos - 2 * quarter));
-        } else if (pos > quarter * 3 && pos <= steps) {
-            scaleX = Math.cos(-10 * (steps - pos));
-        }
-        matrix.setScale((float) scaleX, 1);
+    private double RADIAN = Math.PI/360;
+    private double MAX_SIN = Math.sin(90 * RADIAN);
+
+    private void setupDestRect(long pos, Bitmap mBitmap) {
+
+        int width = mBitmap.getWidth();
+        int left = (int) (width * 1f / 16f);
+        int top = (int) (width * 1f / 8f);
+
+
+        if (dstLeft == null)
+            dstLeft = new Rect();
+        dstLeft.setEmpty();
+        dstLeft.left = 0;
+        dstLeft.top = - top;
+        dstLeft.bottom = h;
+
+        if (dstRight == null)
+            dstRight = new Rect();
+        dstRight.setEmpty();
+        dstRight.right = width;
+        dstRight.top = - top;
+        dstRight.bottom = h;
+
+        double ratio = (MAX_SIN - Math.sin(30 * (pos/200)  * RADIAN)) / 2d;
+        Log.i("Sine ratio", "For pos "+ pos/200 +" ratio is "+ ratio);
+//        dstLeft.right = width + (int) ((width - 2 * left) * ratio);
+        dstLeft.right = (int) (width * ratio);
+
+        dstRight.left = dstLeft.right;
 
     }
 
     long cITime = 0;
     HashMap<Long, Bitmap> hashMap = new HashMap<>();
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (hashMap != null) {
+            for (long i = 0; i < duration; i += 200) {
+                Bitmap b = hashMap.get(i);
+                hashMap.remove(i);
+                if (b != null && !b.isRecycled()) {
+                    b.recycle();
+                    b = null;
+                }
+            }
+        }
+    }
 
     @Override
     public void onSwipe(boolean isLeft) {
@@ -180,7 +220,9 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
             tempValue = minValueCur;
         }
         Log.i("tempValue", "" + tempValue);
-        if (hashMap.containsKey(tempValue)) {
+        if (hashMap.containsKey(tempValue) &&
+                hashMap.get(tempValue) != null &&
+                !hashMap.get(tempValue).isRecycled()) {
             b = hashMap.get(tempValue);
         } else {
             try {
