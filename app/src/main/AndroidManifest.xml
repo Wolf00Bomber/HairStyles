@@ -30,7 +30,6 @@
 
         </activity>
 
-
         <activity
             android:name=".DemoActivity"
             android:icon="@drawable/common_ic_googleplayservices"
@@ -85,9 +84,9 @@
         <activity
             android:name=".WigStitchActivity"
             android:icon="@drawable/common_ic_googleplayservices"
-            android:label="Face Tracker"
+            android:label="WIG PREVIEW"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.Light"></activity>
 
     </application>
 

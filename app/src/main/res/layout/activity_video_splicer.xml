@@ -42,7 +42,9 @@
             android:layout_height="100dp"
             android:layout_marginLeft="10dp"
             android:padding="4dp"
-            android:src="@drawable/short_hairstyles_001_wig" />
+            android:src="@drawable/wig_04" />
+
+        <!--android:src="@drawable/short_hairstyles_001_wig"-->
 
         <ImageView
             android:id="@+id/ivWigTwo"
@@ -50,7 +52,10 @@
             android:layout_height="100dp"
             android:layout_marginLeft="10dp"
             android:padding="4dp"
-            android:src="@drawable/cool_mens_curly_hairstyles_wig" />
+            android:src="@drawable/wig_05" />
+
+
+        <!--android:src="@drawable/cool_mens_curly_hairstyles_wig"-->
 
     </LinearLayout>
 

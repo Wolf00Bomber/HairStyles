@@ -1,6 +1,5 @@
 package hairstyle.twod.com.hairstyles;
 
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -23,7 +22,7 @@ public class CustomImageSeekerListener implements View.OnTouchListener {
             tempX = event.getX();
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             float currentX = event.getX();
-            Log.i("Touch", "Current X=" + currentX + " prev X=" + tempX);
+//            Log.i("Touch", "Current X=" + currentX + " prev X=" + tempX);
             boolean isLeft = tempX - currentX > 0;
             if (currentX - tempX > SWIPE_MIN_DISTANCE || tempX - event.getX() > SWIPE_MIN_DISTANCE) {
                 tempX = currentX;

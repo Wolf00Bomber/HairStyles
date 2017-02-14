@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/two_part"
+        android:showAsAction="collapseActionView"
+        android:title="Two Part Wig"
+        tools:ignore="AppCompatResource" />
+    <item
+        android:id="@+id/three_part"
+        tools:ignore="AppCompatResource"
+        android:showAsAction="collapseActionView"
+        android:title="Three Part Wig" />
+</menu>

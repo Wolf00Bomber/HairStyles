@@ -63,11 +63,13 @@ public class VideoSplicerActivity extends AppCompatActivity implements ImageSeek
             if (v.getId() == R.id.ivWigOne) {
                 ivWigOne.setBackgroundColor(getResources().getColor(R.color.colorAccent));
                 ivWigTwo.setBackgroundColor(Color.TRANSPARENT);
-                wigResSelected = R.drawable.short_hairstyles_001_wig;
+//                wigResSelected = R.drawable.short_hairstyles_001_wig;
+                wigResSelected = R.drawable.wig_04;
             } else if (v.getId() == R.id.ivWigTwo) {
                 ivWigOne.setBackgroundColor(Color.TRANSPARENT);
                 ivWigTwo.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                wigResSelected = R.drawable.cool_mens_curly_hairstyles_wig;
+//                wigResSelected = R.drawable.cool_mens_curly_hairstyles_wig;
+                wigResSelected = R.drawable.wig_05;
             }
         }
     };

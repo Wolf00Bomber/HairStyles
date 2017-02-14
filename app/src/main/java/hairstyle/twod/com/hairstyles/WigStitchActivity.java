@@ -11,9 +11,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import com.google.android.gms.vision.face.FaceDetector;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +42,36 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
     int duration;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.wig_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.two_part:
+                if(state == TWO)
+                    return true;
+                state = TWO;
+                startPrep();
+                return true;
+            case R.id.three_part:
+                if(state == THREE)
+                    return true;
+                state = THREE;
+                startPrep();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    FaceDetector detector;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wig_stitch_layout);
@@ -46,11 +81,16 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
         if (getIntent().hasExtra("wigResId")) {
             wigResSelected = getIntent().getIntExtra("wigResId", wigResSelected);
         }
+        startPrep();
+    }
+
+    private void startPrep(){
         pBar.setVisibility(View.VISIBLE);
         iv.setVisibility(View.INVISIBLE);
         Thread th = new Thread(r);
         th.start();
     }
+
 
     Runnable r = new Runnable() {
         @Override
@@ -89,6 +129,10 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
         MediaPlayer mp = MediaPlayer.create(getBaseContext(), videoFileUri);
         duration = mp.getDuration();
         if (processWigs) {
+//            detector = new FaceDetector.Builder(this)
+//                    .setTrackingEnabled(false)
+//                    .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+//                    .build();
             for (long i = 0; i < duration; i += 200) {
                 Bitmap bitmap = BitmapFactory.decodeFile(FROM_DIRECTORY + "frame" + i + ".jpg");
 
@@ -106,14 +150,19 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
                     }
                 }
             }
+//            detector.release();
         }
         return duration > 1l;
     }
 
-    Bitmap wigBitmap, wigRight, wigLeft;
+    Bitmap wigBitmap, wigRight, wigLeft, wigMiddle;
     Paint p;
-    Rect srcLeft, dstLeft, srcRight, dstRight;
+    Rect srcLeft, dstLeft, srcRight, dstRight, srcMiddle, dstMiddle;
     int w, h;
+
+    private static final int TWO = 2;
+    private static final int THREE = 3;
+    private int state = TWO;
 
     public void saveFrame(Bitmap mBitmap, long i) throws Exception {
 
@@ -124,24 +173,40 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
             w = wigBitmap.getWidth();
             h = wigBitmap.getHeight();
 
-            wigLeft = Bitmap.createBitmap(wigBitmap, 0, 0, w / 2, h);
-            wigRight = Bitmap.createBitmap(wigBitmap, w / 2, 0, w / 2, h);
-            if (srcLeft == null)
-                srcLeft = new Rect(0, 0, w / 2, h);
-            if (srcRight == null)
-                srcRight = new Rect(w / 2, 0, w / 2, h);
-
+            if (state == TWO) {
+                wigLeft = Bitmap.createBitmap(wigBitmap, 0, 0, w / 2, h);
+                wigRight = Bitmap.createBitmap(wigBitmap, w / 2, 0, w / 2, h);
+                if (srcLeft == null)
+                    srcLeft = new Rect(0, 0, w / 2, h);
+                if (srcRight == null)
+                    srcRight = new Rect(w / 2, 0, w / 2, h);
+            } else if (state == THREE) {
+                wigLeft = Bitmap.createBitmap(wigBitmap, 0, 0, w / 3, h);
+                wigMiddle = Bitmap.createBitmap(wigBitmap, w / 3, 0, w / 3, h);
+                wigRight = Bitmap.createBitmap(wigBitmap, (2 * w) / 3, 0, w / 3, h);
+                if (srcLeft == null)
+                    srcLeft = new Rect(0, 0, w / 3, h);
+                if (srcRight == null)
+                    srcRight = new Rect((2 * w) / 3, 0, w / 3, h);
+                if (srcMiddle == null)
+                    srcMiddle = new Rect(0, w / 3, w / 3, h);
+            }
         }
         if (p == null) {
             p = new Paint();
         }
 
-
         setupDestRect(i, mBitmap);
 
         Canvas canvas = new Canvas(mBitmap);
-        canvas.drawBitmap(wigLeft, null, dstLeft, p);
-        canvas.drawBitmap(wigRight, null, dstRight, p);
+        if (state == TWO) {
+            canvas.drawBitmap(wigLeft, null, dstLeft, p);
+            canvas.drawBitmap(wigRight, null, dstRight, p);
+        } else if (state == THREE) {
+            canvas.drawBitmap(wigLeft, null, dstLeft, p);
+            canvas.drawBitmap(wigMiddle, null, dstMiddle, p);
+            canvas.drawBitmap(wigRight, null, dstRight, p);
+        }
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         mBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bytes);
@@ -154,37 +219,89 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
 //        Log.i(TAG, "Wig Frame " + i + " Generated");
     }
 
-    private double RADIAN = Math.PI/360;
+    private double RADIAN = Math.PI / 360;
     private double MAX_SIN = Math.sin(90 * RADIAN);
+
+    int angles[] = {0, 30, 70, 80, 90, 80, 50, 25, 0, -30, -70, -80, -90, -80, -70, -30, 0};
+
 
     private void setupDestRect(long pos, Bitmap mBitmap) {
 
         int width = mBitmap.getWidth();
-        int left = (int) (width * 1f / 16f);
-        int top = (int) (width * 1f / 8f);
+        int height = mBitmap.getHeight();
+        int diff = Math.abs(height - width);
+        int left = 0/*(int) (minValue * 1f / 32f)*/;
+        int top = 0/*(int) (minValue * 1f / 32f)*/;
+        int bottom = height - diff;
+
+        // Frame Detection.
+//        Frame frame = new Frame.Builder().setBitmap(mBitmap).build();
+//        SparseArray<Face> faces = detector.detect(frame);
+//        int key = faces.keyAt(0);
+//        Face ourFace = faces.get(key);
+
+        if (state == TWO) {
+            if (dstLeft == null)
+                dstLeft = new Rect();
+            dstLeft.setEmpty();
+            dstLeft.left =  left;
+            dstLeft.top = +top;
+            dstLeft.bottom = bottom;
+
+            if (dstRight == null)
+                dstRight = new Rect();
+            dstRight.setEmpty();
+            dstRight.right = width - left;
+            dstRight.top = +top;
+            dstRight.bottom = bottom;
+
+            // Non-linear Angle Selection
+//            int angle = angles[(int) (pos/200)];
+            // Linear Angles.
+            // 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, ...
+//            double angle = (MAX_SIN - Math.sin(30 * (pos / 200) * RADIAN)) / 2d;
+//            float angle = ourFace.getEulerY();
+//            Log.i("EulerX,Y at "+ pos/200, ourFace.getEulerZ() + " "+ angle + "");
 
 
-        if (dstLeft == null)
-            dstLeft = new Rect();
-        dstLeft.setEmpty();
-        dstLeft.left = 0;
-        dstLeft.top = - top;
-        dstLeft.bottom = h;
 
-        if (dstRight == null)
-            dstRight = new Rect();
-        dstRight.setEmpty();
-        dstRight.right = width;
-        dstRight.top = - top;
-        dstRight.bottom = h;
+            double ratio = (MAX_SIN - Math.sin(32 * (pos / 200) * RADIAN)) / 2d;
+            Log.i("Sine ratio", "For pos " + pos / 200 + " ratio is " + ratio);
+            dstLeft.right = (int) (width * ratio);
+            dstRight.left = dstLeft.right;
 
-        double ratio = (MAX_SIN - Math.sin(30 * (pos/200)  * RADIAN)) / 2d;
-        Log.i("Sine ratio", "For pos "+ pos/200 +" ratio is "+ ratio);
-//        dstLeft.right = width + (int) ((width - 2 * left) * ratio);
-        dstLeft.right = (int) (width * ratio);
+        } else if (state == THREE) {
+            if (dstLeft == null)
+                dstLeft = new Rect();
+            dstLeft.setEmpty();
+            dstLeft.left = 0;
+            dstLeft.top = -top;
+            dstLeft.bottom = h;
 
-        dstRight.left = dstLeft.right;
+            if (dstMiddle == null)
+                dstMiddle = new Rect();
+            dstMiddle.setEmpty();
+            dstMiddle.top = -top;
+            dstMiddle.bottom = h;
 
+            if (dstRight == null)
+                dstRight = new Rect();
+            dstRight.setEmpty();
+            dstRight.right = width;
+            dstRight.top = -top;
+            dstRight.bottom = h;
+
+            long steps = (pos / 200);
+            double stepAngle = 30 * RADIAN;
+            Log.i("Angle", "" + stepAngle);
+            double angle = steps * stepAngle;
+            double cosValue = Math.cos(angle);
+
+            dstLeft.right = (int) (width * (0.5f - cosValue / 6f));
+            dstMiddle.left = dstLeft.right;
+            dstMiddle.right = (int) (width * (0.5f + cosValue / 6f));
+            dstRight.left = dstMiddle.right;
+        }
     }
 
     long cITime = 0;
@@ -219,7 +336,7 @@ public class WigStitchActivity extends AppCompatActivity implements ImageSeekerI
             long minValueCur = Math.min(tempValue, maxIndex * 200);
             tempValue = minValueCur;
         }
-        Log.i("tempValue", "" + tempValue);
+//        Log.i("tempValue", "" + tempValue);
         if (hashMap.containsKey(tempValue) &&
                 hashMap.get(tempValue) != null &&
                 !hashMap.get(tempValue).isRecycled()) {
